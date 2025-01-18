@@ -1,3 +1,5 @@
 .sconsign.dblite
+.pio
 .pioenvs
+.vscode
 config.h
