@@ -1,12 +1,12 @@
 ## A wifi (ESP8266) temperature/humidity sensor for OpenHAB
 
-This project implements a simple and cheap room temperature/humidity sensor 
+This project implements a simple and cheap room temperature/humidity sensor
 based on the DHT22 and the ESP8266 ESP-01 board. If you only want to log temperatures
 you can also use the Dallas DS18S20 onewire temperature sensor.
 It uses [platformio](http://platformio.org) to manage the cross compiler and
 Arduino framework setup tasks. I wanted a rather cheap sensor that can be integrated
 into an [OpenHAB](http://openhab.org) home automation setup easily. The sensor
-anounces itself using MDNS. A simple text-based webpage is built in and can be 
+anounces itself using MDNS. A simple text-based webpage is built in and can be
 accessed using your web browser:
 
 ![Website of the sensor](https://raw.githubusercontent.com/gonium/esp8266-dht22-sensor/master/images/webbrowser.png)
@@ -37,7 +37,7 @@ I display these two values using these entries in my sitemap:
     Text item=Room_Temperature icon="temperature"
     Text item=Room_Humidity icon="water"
 
-Here you can see a screenshot of the OpenHAB classic interface using the 
+Here you can see a screenshot of the OpenHAB classic interface using the
 sensor values
 
 ![OpenHAB classic UI](https://raw.githubusercontent.com/gonium/esp8266-dht22-sensor/master/images/penthouse-ui.png)
@@ -105,29 +105,35 @@ Essentially, I did the following:
 
 Afterwards, clone the project (and the submodules in it):
 
-    $ git clone --recursive git@github.com:gonium/esp8266-dht22-sensor.git
-    $ cd esp8266-dht22-sensor.git
+    $ git clone --recurse-submodules https://github.com/jesscmoore/esp8266-dht22-sensor.git
+    $ cd esp8266-dht22-sensor
 
-Then, you have to copy the example of the config file and edit it to match 
+Then, you have to copy the example of the config file and edit it to match
 your network configuration:
 
     $ cp config_sample.h config.h
     $ vim config.h
 
-In this file, please adjust SSID, password and the hostname you would like to 
-broadcast via MDNS. Depending on the sensor you populated you need to uncomment the 
+In this file, edit these configuration variables:
+
+- [SSID]
+- `SSID password`
+- [mdnsname] - the hostname you would like to broadcast via MDNS
+
+Depending on the sensor you populated you need to uncomment the
 define line for your sensor. You also need to define how many
 temperature sensors you have attached. The sensors are enumerated and
 the first sensor will be represented via the ``/temperature/0`` url, the
 second can be queried via ``/temperature/1`` and so on. If you query
 ``/temperature`` you will be mapped on the first sensor.
 
-You can simply run the platformio toolchain now, it will download all 
-needed components/libraries, compile the code and upload it automatically (please 
-put the ESP8266 into bootloader mode - press PROG and RESET, then release RESET
-first):
+Compiling the code with `platform run`. This will also download all needed components/libraries:
 
     $ platformio run
+
+Compile and upload firmware to embedded board with
+
+    $ platform run --target upload
 
 For development, I directly attach to the serial console afterwards:
 
@@ -137,22 +143,24 @@ On my system this is the output:
 
     Wifi temperature sensor v0.1
     ......
-    Connected to nibbler
-    IP address: 192.168.1.160
+    Connected to roomsensor
+    IP address: 10.1.1.141
     MDNS responder started
 
-The sensor should now be accessible under ````http://192.168.1.160```` and ````http://roomsensor````.
+The sensor should now be accessible under ````http://10.1.1.141```` and ````http://roomsensor.local````.
+
+    $ curl http://10.1.1.141
+    Measurements of device roomsensor
+    Sensor 0 temperature: 24.05 degree Celsius
+    Sensor 0 humidity: 99.90 % r.H.
+
+Compiled files can be removed with:
+
+    $ platformio run --target clean
 
 ### License
 
-The project is available under the terms of the MIT license. It uses 
+The project is available under the terms of the MIT license. It uses
  * [Platformio](http://platformio.org) and the ESP8266-Arduino
    environment that is bundled
  * [Adafruits DHT22-Library](https://github.com/adafruit/DHT-sensor-library)
-
-### Note: Platformio-specific commands
-
-Useful commands:
-`platformio run` - process/build project from the current directory
-`platformio run --target upload` or `platformio run -t upload` - upload firmware to embedded board
-`platformio run --target clean` - clean project (remove compiled files)
